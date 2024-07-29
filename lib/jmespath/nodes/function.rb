@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module JMESPath
   # @api private
   module Nodes
@@ -113,6 +114,7 @@ module JMESPath
         if values.respond_to?(:to_ary)
           values = values.to_ary
           return nil if values.empty?
+
           values.inject(0) do |total, n|
             if Numeric === n
               total + n
@@ -208,6 +210,7 @@ module JMESPath
         if args.count != 2
           return maybe_raise Errors::InvalidArityError, 'function map() expects two arguments'
         end
+
         if Nodes::Expression === args[0]
           expr = args[0]
         else
@@ -236,6 +239,7 @@ module JMESPath
         if values.respond_to?(:to_ary)
           values = values.to_ary
           return nil if values.empty?
+
           first = values.first
           first_type = get_type(first)
           unless first_type == NUMBER_TYPE || first_type == STRING_TYPE
@@ -272,6 +276,7 @@ module JMESPath
         if values.respond_to?(:to_ary)
           values = values.to_ary
           return nil if values.empty?
+
           first = values.first
           first_type = get_type(first)
           unless first_type == NUMBER_TYPE || first_type == STRING_TYPE
@@ -398,6 +403,37 @@ module JMESPath
       end
     end
 
+    class SplitFunction < Function
+      FUNCTIONS['split'] = self
+
+      def call(args)
+        if args.count < 2 || args.count > 3
+          return maybe_raise Errors::InvalidArityError, 'function split() expects two or three arguments'
+        end
+
+        subject, search, count = args
+
+        if subject.length.zero? && search.length.zero?
+          return []
+        end
+
+        if count == '' || count.nil?
+          return subject.split(search)
+        end
+
+        count = Float(count)
+        if count.negative? || (count % 1).positive?
+          return maybe_raise Errors::InvalidTypeError,
+                             'function split() expects count to be a non-negative integer'
+        end
+
+        return [subject] if count.zero?
+
+        split = subject.split(search)
+        split.slice(0, count).push(split.slice(count..-1).join(search))
+      end
+    end
+
     class SumFunction < Function
       FUNCTIONS['sum'] = self
 
@@ -453,10 +489,12 @@ module JMESPath
                 [v, n]
               end
             else
-              return maybe_raise Errors::InvalidTypeError, 'function sort() expects values to be an array of numbers or integers'
+              return maybe_raise Errors::InvalidTypeError,
+                                 'function sort() expects values to be an array of numbers or integers'
             end
           else
-            return maybe_raise Errors::InvalidTypeError, 'function sort() expects values to be an array of numbers or integers'
+            return maybe_raise Errors::InvalidTypeError,
+                               'function sort() expects values to be an array of numbers or integers'
           end
         else
           return maybe_raise Errors::InvalidArityError, 'function sort() expects one argument'
@@ -489,7 +527,8 @@ module JMESPath
                 [value, n]
               end
             else
-              return maybe_raise Errors::InvalidTypeError, 'function sort() expects values to be an array of numbers or integers'
+              return maybe_raise Errors::InvalidTypeError,
+                                 'function sort() expects values to be an array of numbers or integers'
             end
           else
             return maybe_raise Errors::InvalidTypeError, 'function sort_by() expects an array and an expression'

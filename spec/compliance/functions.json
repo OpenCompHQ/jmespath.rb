@@ -12,7 +12,8 @@
     "empty_list": [],
     "empty_hash": {},
     "objects": {"foo": "bar", "bar": "baz"},
-    "null_key": null
+    "null_key": null,
+    "splitable": "average|-|min|-|max|-|mean|-|median"
   },
   "cases": [
     {
@@ -193,7 +194,7 @@
     },
     {
       "expression": "length(@)",
-      "result": 12
+      "result": 13
     },
     {
       "expression": "length(strings[0])",
@@ -442,6 +443,30 @@
     {
       "expression": "starts_with(str, `0`)",
       "error": "invalid-type"
+    },
+    {
+      "expression": "split(splitable, '|-|', '3')",
+      "result": ["average","min","max","mean|-|median"]
+    },
+    {
+      "expression": "split(splitable, '|-|', '2')",
+      "result": ["average","min","max|-|mean|-|median"]
+    },
+    {
+      "expression": "split(splitable, '|-|', '1')",
+      "result": ["average","min|-|max|-|mean|-|median"]
+    },
+    {
+      "expression": "split(splitable, '|-|', '0')",
+      "result": ["average|-|min|-|max|-|mean|-|median"]
+    },
+    {
+      "expression": "split(splitable, '-')",
+      "result": ["average|","|min|","|max|","|mean|","|median"]
+    },
+    {
+      "expression": "split(splitable, '|-|')",
+      "result": ["average","min","max","mean","median"]
     },
     {
       "expression": "sum(numbers)",

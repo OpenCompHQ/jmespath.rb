@@ -1,6 +1,11 @@
 Unreleased Changes
 ------------------
 
+1.7.0 (2022-11-25)
+------------------
+
+* Feature - Add support for split function
+
 1.6.2 (2022-11-25)
 ------------------
 
